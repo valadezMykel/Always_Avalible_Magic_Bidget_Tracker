@@ -16,11 +16,37 @@ self.addEventListener('install', (event) => {
 })
 
 self.addEventListener('fetch', (event) => {
+    
+    if(event.request.url.includes('/api/')) {
+        event.respondWith(
+            cache.open(DATA_CACHE_NAME)
+            .then(cache => {
+
+                return fetch(event.request)
+
+                .then(response => {
+
+                    if(response.status !== 200 || response.type !== 'basic') {
+                        return response
+                    }else {
+                        cache.put(event.request.url, response.clone())
+                    }
+                })
+                .catch(err => {
+                    console.log(err)
+                    console.log("Data will be stored offline until site is reconnected to the internet")
+                    return cache.match(event.request)
+                })
+            })
+            .catch(err => console.log(err))
+        )
+    }
+
     event.respondWith(
         caches.match(event.request)
             .then(response => {
                 if(response){
-                    console.log("returned from cache")
+                    
                     return response
                 }
 

@@ -1,7 +1,7 @@
 let transactions = [];
 let myChart;
 
-fetch("/api/transaction")
+fetch("/api/transaction/look")
   .then(response => {
     return response.json();
   })
@@ -12,7 +12,8 @@ fetch("/api/transaction")
     populateTotal();
     populateTable();
     populateChart();
-  });
+  })
+  // .catch(err => console.log(err))
 
 function populateTotal() {
   // reduce transaction amounts to a single total value
@@ -113,7 +114,7 @@ function sendTransaction(isAdding) {
   populateTotal();
   
   // also send to server
-  fetch("/api/transaction", {
+  fetch("/api/transaction/place", {
     method: "POST",
     body: JSON.stringify(transaction),
     headers: {

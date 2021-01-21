@@ -35,7 +35,7 @@ self.addEventListener("activate", function(evt) {
   });
 
 self.addEventListener('fetch', (event) => {
-    if(event.request.url.includes('/api/')) {
+    if(event.request.url.includes('/api/') && event.request.method === 'GET') {
         
         event.respondWith(
             
@@ -54,18 +54,17 @@ self.addEventListener('fetch', (event) => {
                     return response
                 })
                 .catch(err => {
-                    console.log(err)
-                    console.log("Data will be stored offline until site is reconnected to the internet")
                     return cache.match(event.request)
                 })
             })
             .catch(err => console.log(err))
         )
     }else {
-
+        
         event.respondWith(
             caches.match(event.request)
                 .then(response => {
+                    
                     if(response){
                         
                         return response

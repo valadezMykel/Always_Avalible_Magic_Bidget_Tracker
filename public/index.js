@@ -1,7 +1,7 @@
 let transactions = [];
 let myChart;
 
-fetch("/api/transaction/look")
+fetch("/api/transaction")
   .then(response => {
     return response.json();
   })
@@ -13,7 +13,6 @@ fetch("/api/transaction/look")
     populateTable();
     populateChart();
   })
-  // .catch(err => console.log(err))
 
 function populateTotal() {
   // reduce transaction amounts to a single total value
@@ -114,7 +113,7 @@ function sendTransaction(isAdding) {
   populateTotal();
   
   // also send to server
-  fetch("/api/transaction/place", {
+  fetch("/api/transaction", {
     method: "POST",
     body: JSON.stringify(transaction),
     headers: {
@@ -137,6 +136,7 @@ function sendTransaction(isAdding) {
   })
   .catch(err => {
     // fetch failed, so save in indexed db
+    console.log('save file needed')
     saveRecord(transaction);
 
     // clear form

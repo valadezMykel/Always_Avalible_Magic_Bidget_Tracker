@@ -1,5 +1,9 @@
+
 let transactions = [];
 let myChart;
+
+
+
 
 fetch("/api/transaction")
   .then(response => {
@@ -78,6 +82,74 @@ function populateChart() {
   });
 }
 
+function checkForPendingTransactions() {
+  const request = window.indexedDB.open('pendingTransactions', 1)
+
+  request.onupgradeneeded = (event) => {
+    
+    const db = event.target.result
+
+    db.createObjectStore('pendingTransactions', {
+      keyPath: 'date'
+    })
+  }
+
+  request.onsuccess = () => {
+    const db = request.result
+    const dbTransaction = db.transaction(['pendingTransactions'], 'readwrite')
+    const pendingTransactionsStore = dbTransaction.objectStore('pendingTransactions')
+
+    // needs to become an async function
+    const pendingTransactionStoreEverything = pendingTransactionsStore.getAll()
+
+    pendingTransactionStoreEverything.onsuccess = () => {
+      if(pendingTransactionStoreEverything.result) {
+
+        const pendingTransactionArry = pendingTransactionStoreEverything.result
+        console.log(pendingTransactionArry)
+
+        pendingTransactionsStore.clear()
+  
+        fetch("/api/transaction/bulk", {
+          method: "POST",
+          body: JSON.stringify(pendingTransactionArry),
+          headers: {
+            Accept: "application/json, text/plain, */*",
+            "Content-Type": "application/json"
+          }
+        })
+        .catch(err => console.log(err))
+      }
+    }
+
+
+    db.close()
+  }
+}
+
+function saveRecord(transaction) {
+  const request = window.indexedDB.open('pendingTransactions', 1)
+
+  request.onupgradeneeded = (event) => {
+    
+    const db = event.target.result
+
+    db.createObjectStore('pendingTransactions', {
+      keyPath: 'date'
+    })
+  }
+
+  request.onsuccess = () => {
+    const db = request.result
+    const dbTransaction = db.transaction(['pendingTransactions'], 'readwrite')
+    const pendingTransactionsStore = dbTransaction.objectStore('pendingTransactions')
+
+    pendingTransactionsStore.add(transaction)
+
+    db.close()
+  }
+}
+
 function sendTransaction(isAdding) {
   let nameEl = document.querySelector("#t-name");
   let amountEl = document.querySelector("#t-amount");
@@ -152,3 +224,9 @@ document.querySelector("#add-btn").onclick = function() {
 document.querySelector("#sub-btn").onclick = function() {
   sendTransaction(false);
 };
+
+
+window.addEventListener('online', () => {
+  console.log('online now')
+  checkForPendingTransactions()
+})

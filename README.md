@@ -9,7 +9,7 @@
 For the Repository link click [here](https://github.com/valadezMykel/Always_Avalible_Magic_Bidget_Tracker)
 
 
-For a link to the deployed project click [here](placeHolderLink)
+For a link to the deployed project click [here](https://arcane-gorge-45702.herokuapp.com/)
 
 
 ## Table of Contents
